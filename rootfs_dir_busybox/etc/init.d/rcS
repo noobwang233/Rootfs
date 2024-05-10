@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# PATH环境变量保存着可执行文件可能存在的目录，这样我们在执行一些命令或者可执行文件的时候就不会提示找不到文件这样的错误。
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:$PATH
+# LD_LIBRARY_PATH环境变量保存着库文件所在的目录。
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib:/usr/lib
+# 使用 export来导出上面这些环境变量，相当于声明一些“全局变量”。
+export PATH LD_LIBRARY_PATH
+# 使用 mount命令来挂载所有的文件系统，这些文件系统由文件 /etc/fstab来指定，所以我们一会还要创建 /etc/fstab文件。
+mount -a
+# 创建目录 /dev/pts，然后将 devpts挂载到 /dev/pts目录中。
+mkdir /dev/pts
+mount -t devpts devpts /dev/pts
+# 使用 mdev来管理热插拔设备，通过这两行， Linux内核就可以在 /dev目录下自动创建设备节点。关于 mdev的详细内容可以参考 busybox中的 docs/mdev.txt文档。
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+mdev -s
